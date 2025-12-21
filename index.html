@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Analisis Kompleksitas Algoritma</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h1>Analisis Algoritma</h1>
+  <p class="subtitle">Studi Kasus: Kombinasi & Permutasi (Golang Backend)</p>
+
+  <div class="input-box">
+    <div class="field">
+        <label>Nilai N</label>
+        <input type="number" id="n" placeholder="10">
+    </div>
+    <div class="field">
+        <label>Nilai K</label>
+        <input type="number" id="k" placeholder="2">
+    </div>
+    <button onclick="hitung()">Mulai Analisis</button>
+  </div>
+
+  <div id="result-container" class="result-box" style="display: none;">
+    <p id="txt-kombinasi"></p>
+    <p id="txt-permutasi"></p>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-container">
+        <h3>Kompleksitas Kombinasi</h3>
+        <canvas id="chartKombinasi"></canvas>
+    </div>
+    <div class="chart-container">
+        <h3>Kompleksitas Permutasi</h3>
+        <canvas id="chartPermutasi"></canvas>
+    </div>
+  </div>
+
+  <div class="conclusion-box">
+    <h2>Kesimpulan Analisis</h2>
+    <p>
+      Berdasarkan pengujian sistem, algoritma <strong>Iteratif</strong> terbukti jauh lebih efisien dibandingkan <strong>Rekursif</strong> untuk kasus perhitungan ini.
+    </p>
+    <ul style="text-align: left; margin-top: 10px;">
+        <li>
+            <strong>Pada Kombinasi:</strong> Algoritma Rekursif memiliki kompleksitas <em>Eksponensial O(2ⁿ)</em> karena terjadi perhitungan berulang (overlapping subproblems) tanpa penyimpanan memori (memoization). Ini menyebabkan jumlah langkah melonjak drastis seiring bertambahnya N.
+        </li>
+        <li>
+            <strong>Pada Permutasi:</strong> Meskipun kode rekursif permutasi lebih efisien (Linear) dibanding kombinasi, pendekatan Iteratif <em>O(n)</em> tetap lebih unggul dari segi penggunaan memori (Stack Memory) karena tidak membutuhkan overhead pemanggilan fungsi berulang.
+        </li>
+    </ul>
+    <p class="final-verdict">
+        <strong>Rekomendasi:</strong> Gunakan pendekatan Iteratif untuk sistem production yang membutuhkan performa tinggi dan efisiensi memori.
+    </p>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</body>
+</html>
