@@ -2,66 +2,65 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Analisis Kompleksitas Algoritma</title>
+  <title>Analisis Algoritma: Manajer Konser</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
 <body>
 
 <div class="container">
-  <h1>Analisis Algoritma</h1>
-  <p class="subtitle">Studi Kasus: Kombinasi & Permutasi (Golang Backend)</p>
+  <h1>Manajer Konser Simulator</h1>
+  <p class="subtitle">Studi Kasus: Analisis Efisiensi Penyusunan Setlist Lagu</p>
 
   <div class="input-box">
     <div class="field">
-        <label>Nilai N</label>
-        <input type="number" id="n" placeholder="10">
+        <label>Total Koleksi Lagu (N)</label>
+        <input type="number" id="n" placeholder="Contoh: 20" min="0" max="20" value="20">
     </div>
     <div class="field">
-        <label>Nilai K</label>
-        <input type="number" id="k" placeholder="2">
+        <label>Slot Tampil di TV (K)</label>
+        <input type="number" id="k" placeholder="Contoh: 3" min="0" max="20" value="3">
     </div>
-    <button onclick="hitung()">Mulai Analisis</button>
+    <button onclick="hitung()">Analisis Skenario</button>
   </div>
 
   <div id="result-container" class="result-box" style="display: none;">
-    <p id="txt-kombinasi"></p>
-    <p id="txt-permutasi"></p>
+    <h3 style="margin-top:0; color:#38bdf8;">Laporan Manajer:</h3>
+    <p id="story-text" style="line-height: 1.6;"></p>
+    
+    <hr style="border-color: #334155; margin: 15px 0;">
+    
+    <div style="font-size: 0.9em; color: #94a3b8;">
+        <strong>Data Matematis:</strong><br>
+        <span id="txt-kombinasi"></span><br>
+        <span id="txt-permutasi"></span>
+    </div>
   </div>
+
   <div class="charts-grid">
     <div class="chart-container">
-        <h3>Kompleksitas Kombinasi</h3>
+        <h3>1. Seleksi Lagu (Kombinasi)</h3>
+        <p style="font-size: 0.8rem; color: #94a3b8;">Hanya memilih, urutan bebas</p>
         <canvas id="chartKombinasi"></canvas>
     </div>
     <div class="chart-container">
-        <h3>Kompleksitas Permutasi</h3>
+        <h3>2. Susunan Rundown (Permutasi)</h3>
+        <p style="font-size: 0.8rem; color: #94a3b8;">Urutan Opening & Ending penting</p>
         <canvas id="chartPermutasi"></canvas>
     </div>
   </div>
 
   <div class="conclusion-box">
-    <h2>Kesimpulan Analisis</h2>
+    <h2>Kesimpulan Analis</h2>
     <p>
-      Berdasarkan pengujian sistem, algoritma <strong>Iteratif</strong> terbukti jauh lebih efisien dibandingkan <strong>Rekursif</strong> untuk kasus perhitungan ini.
-    </p>
-    <ul style="text-align: left; margin-top: 10px;">
-        <li>
-            <strong>Pada Kombinasi:</strong> Algoritma Rekursif memiliki kompleksitas <em>Eksponensial O(2ⁿ)</em> karena terjadi perhitungan berulang (overlapping subproblems) tanpa penyimpanan memori (memoization). Ini menyebabkan jumlah langkah melonjak drastis seiring bertambahnya N.
-        </li>
-        <li>
-            <strong>Pada Permutasi:</strong> Meskipun kode rekursif permutasi lebih efisien (Linear) dibanding kombinasi, pendekatan Iteratif <em>O(n)</em> tetap lebih unggul dari segi penggunaan memori (Stack Memory) karena tidak membutuhkan overhead pemanggilan fungsi berulang.
-        </li>
-    </ul>
-    <p class="final-verdict">
-        <strong>Rekomendasi:</strong> Gunakan pendekatan Iteratif untuk sistem production yang membutuhkan performa tinggi dan efisiensi memori.
+      Berdasarkan pengujian sistem, algoritma Rekursif (tanpa optimasi) pada tahap Kombinasi mengalami ledakan komputasi hingga jutaan langkah. Sedangkan Iteratif menyelesaikannya hanya dalam hitungan jari.
     </p>
   </div>
 
 </div>
 
 <script src="script.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </body>
 </html>

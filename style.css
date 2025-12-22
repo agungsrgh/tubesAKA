@@ -51,7 +51,6 @@ button {
 }
 button:hover { background: #2563eb; }
 
-/* Grid untuk 2 Grafik */
 .charts-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -68,10 +67,9 @@ button:hover { background: #2563eb; }
 
 .chart-container h3 { margin-top: 0; color: #e2e8f0; font-size: 1rem; }
 
-/* Styling Kesimpulan */
 .conclusion-box {
   background: #1e293b;
-  border-left: 5px solid #3b82f6; /* Aksen biru di kiri */
+  border-left: 5px solid #3b82f6; 
   padding: 25px;
   border-radius: 8px;
   text-align: left;
@@ -84,13 +82,12 @@ button:hover { background: #2563eb; }
   margin-top: 20px;
   padding-top: 15px;
   border-top: 1px solid #334155;
-  color: #fbbf24; /* Kuning emas */
+  color: #fbbf24;
 }
 
-/* Tambahkan ini di file css kamu */
 .result-box {
-  background: #1e293b; /* Warna latar gelap senada */
-  border-left: 5px solid #4ade80; /* Garis hijau di kiri sebagai aksen */
+  background: #1e293b;
+  border-left: 5px solid #4ade80;
   padding: 20px;
   margin-bottom: 30px;
   border-radius: 8px;
@@ -102,12 +99,12 @@ button:hover { background: #2563eb; }
 .result-box p {
   margin: 10px 0;
   font-size: 1.1rem;
-  color: #f8fafc; /* Warna teks putih terang */
+  color: #f8fafc; 
   font-family: 'Inter', sans-serif;
 }
 
 .result-box strong {
-  color: #38bdf8; /* Warna angka biru muda agar mencolok */
+  color: #38bdf8; 
   font-weight: 700;
 }
 
@@ -116,7 +113,6 @@ button:hover { background: #2563eb; }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsif untuk HP */
 @media (max-width: 768px) {
   .charts-grid { grid-template-columns: 1fr; }
   .input-box { flex-direction: column; align-items: stretch; }

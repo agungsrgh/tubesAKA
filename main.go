@@ -63,49 +63,47 @@ func permutasiRekursif(n, k int) int {
 // ===== API =====
 
 func hitungHandler(w http.ResponseWriter, r *http.Request) {
-    n, _ := strconv.Atoi(r.URL.Query().Get("n"))
-    k, _ := strconv.Atoi(r.URL.Query().Get("k"))
+	n, _ := strconv.Atoi(r.URL.Query().Get("n"))
+	k, _ := strconv.Atoi(r.URL.Query().Get("k"))
 
-    w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 
-    // --- VALIDASI SAFETY GUARD ---
-    // Batasi N maksimal 20 agar tidak Overflow & Server Hang
-    if n > 20 {
-        w.WriteHeader(http.StatusBadRequest) // Kirim kode error 400
-        json.NewEncoder(w).Encode(map[string]string{
-            "error": "Nilai N terlalu besar! Maksimal 20 demi keamanan server.",
-        })
-        return
-    }
-    if n < 0 || k < 0 {
-         w.WriteHeader(http.StatusBadRequest)
-         json.NewEncoder(w).Encode(map[string]string{
-            "error": "Nilai tidak boleh negatif.",
-        })
-        return
-    }
-    // -----------------------------
+	if n > 20 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Nilai N terlalu besar! Maksimal 20 demi keamanan server.",
+		})
+		return
+	}
+	if n < 0 || k < 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Nilai tidak boleh negatif.",
+		})
+		return
+	}
+	// -----------------------------
 
-    kombIter, stepKombIter := kombinasiIteratif(n, k)
-    langkahRekursifKombinasi = 0
-    kombRec := kombinasiRekursif(n, k)
+	kombIter, stepKombIter := kombinasiIteratif(n, k)
+	langkahRekursifKombinasi = 0
+	kombRec := kombinasiRekursif(n, k)
 
-    permIter, stepPermIter := permutasiIteratif(n, k)
-    langkahRekursifPermutasi = 0
-    permRec := permutasiRekursif(n, k)
+	permIter, stepPermIter := permutasiIteratif(n, k)
+	langkahRekursifPermutasi = 0
+	permRec := permutasiRekursif(n, k)
 
-    response := map[string]int{
-        "komb_iter":      kombIter,
-        "komb_rec":       kombRec,
-        "perm_iter":      permIter,
-        "perm_rec":       permRec,
-        "step_komb_iter": stepKombIter,
-        "step_komb_rec":  langkahRekursifKombinasi,
-        "step_perm_iter": stepPermIter,
-        "step_perm_rec":  langkahRekursifPermutasi,
-    }
+	response := map[string]int{
+		"komb_iter":      kombIter,
+		"komb_rec":       kombRec,
+		"perm_iter":      permIter,
+		"perm_rec":       permRec,
+		"step_komb_iter": stepKombIter,
+		"step_komb_rec":  langkahRekursifKombinasi,
+		"step_perm_iter": stepPermIter,
+		"step_perm_rec":  langkahRekursifPermutasi,
+	}
 
-    json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(response)
 }
 
 func main() {
