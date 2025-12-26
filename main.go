@@ -35,7 +35,7 @@ func kombinasiIteratif(n, k int) (int, int) {
 	return hasil, langkah
 }
 
-func kombinasiRekursif(n, k int) int { // Fungsi rekursif + hitung langkah
+func kombinasiRekursif(n, k int) int { 
 	langkahRekursifKombinasi++
 
 	if k > n {
@@ -48,7 +48,7 @@ func kombinasiRekursif(n, k int) int { // Fungsi rekursif + hitung langkah
 	return kombinasiRekursif(n-1, k-1) + kombinasiRekursif(n-1, k)
 }
 
-func permutasiIteratif(n, k int) (int, int) { // Hitung permutasi dengan iteratif
+func permutasiIteratif(n, k int) (int, int) {
 	var i, hasil, langkah int
 
 	langkah = 0
@@ -61,7 +61,7 @@ func permutasiIteratif(n, k int) (int, int) { // Hitung permutasi dengan iterati
 	return hasil, langkah
 }
 
-func permutasiRekursif(n, k int) int { // Hitung permutasi dengan rekursif
+func permutasiRekursif(n, k int) int { 
 	langkahRekursifPermutasi++
 
 	if k == 0 {
@@ -92,7 +92,6 @@ func hitungHandler(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	// -----------------------------
 
 	kombIter, stepKombIter := kombinasiIteratif(n, k)
 	langkahRekursifKombinasi = 0

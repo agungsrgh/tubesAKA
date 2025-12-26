@@ -21,7 +21,6 @@ function hitung() {
         return;
     }
 
-    // Ambil Data Akurat dari Backend Go
     fetch(`/api/hitung?n=${n}&k=${k}`)
         .then(async res => {
             if (!res.ok) throw new Error("Server Error");
@@ -29,13 +28,12 @@ function hitung() {
         })
         .then(data => {
             generateStory(data, n, k);
-            // Jalankan simulasi grafik dengan data REAL
             const simulation = simulateFullCurve(n);
             renderLineCharts(simulation, k);
         })
         .catch(err => {
             console.error(err);
-            alert("⚠️ GAGAL: " + err.message);
+            alert("GAGAL: " + err.message);
         });
 }
 
@@ -50,7 +48,6 @@ function generateStory(data, n, k) {
     const valPerm = data.perm_iter.toLocaleString('id-ID');
     const stepRec = data.step_komb_rec.toLocaleString('id-ID');
 
-    // Update Angka di Kotak
     if(txtKomb) txtKomb.innerHTML = `Kombinasi C(${n},${k}): <strong>${valKomb}</strong>`;
     if(txtPerm) txtPerm.innerHTML = `Permutasi P(${n},${k}): <strong>${valPerm}</strong>`;
 
@@ -68,33 +65,21 @@ function generateStory(data, n, k) {
     if(box) box.style.display = "block";
 }
 
-// --- LOGIKA SIMULASI REAL (DENGAN CACHE) ---
-// Ini menghitung langkah PERSIS sama seperti kode Go kamu.
-// Menggunakan 'memoSteps' agar browser tidak crash saat N besar.
-
-let memoSteps = {}; // Tempat nyimpen hasil hitungan biar gak diulang
-
+let memoSteps = {};
 function getRealRecursiveSteps(n, k) {
     const key = `${n},${k}`;
     
-    // Cek apakah sudah pernah dihitung? Kalau sudah, ambil dari ingatan.
     if (memoSteps[key] !== undefined) return memoSteps[key];
 
-    // Logika Hitung Langkah (Sama persis kayak Go)
-    // Setiap kali fungsi dipanggil = 1 langkah
     let steps = 1; 
 
     if (k > n) {
-        // Base case user: return 0. Tidak ada panggilan anak.
     } else if (k === 0) {
-        // Base case user: return 1. Tidak ada panggilan anak.
     } else {
-        // Rekursif: Panggil anak kiri + anak kanan
         steps += getRealRecursiveSteps(n - 1, k - 1);
         steps += getRealRecursiveSteps(n - 1, k);
     }
 
-    // Simpan ke ingatan
     memoSteps[key] = steps;
     return steps;
 }
@@ -102,28 +87,20 @@ function getRealRecursiveSteps(n, k) {
 function simulateFullCurve(n) {
     let labels = [];
     let kombIter = [];
-    let kombRec = []; // Ini yang akan diisi data REAL
+    let kombRec = []; 
     let permIter = [];
     let permRec = [];
 
-    // Reset ingatan setiap kali simulasi baru
     memoSteps = {};
 
     for (let i = 0; i <= n; i++) {
         labels.push(i);
-        
-        // 1. Kombinasi Iteratif (Hijau)
-        // Logika: Jika K > N-K, kita balik (optimasi).
         let k_opt = (i > n - i) ? n - i : i;
         let stepsKI = (k_opt === 0) ? 0 : k_opt; 
         kombIter.push(stepsKI);
-
-        // 2. Kombinasi Rekursif (Merah) - DATA PASTI
-        // Panggil fungsi hitung langkah asli
         let realSteps = getRealRecursiveSteps(n, i);
         kombRec.push(realSteps);
 
-        // 3. Permutasi (Biru & Kuning)
         permIter.push(i);
         permRec.push(i + 1);
     }
@@ -138,15 +115,13 @@ function renderLineCharts(data, userK) {
 
     const ctxKomb = ctxKombElement.getContext('2d');
     const ctxPerm = ctxPermElement.getContext('2d');
-    
-    // Plugin Garis Penanda
+
     const verticalLinePlugin = {
         id: 'verticalLine',
         afterDraw: (chart) => {
             if (chart.tooltip?._active?.length) return;
             const ctx = chart.ctx;
-            
-            // Cek apakah userK ada dalam jangkauan sumbu X
+
             const meta = chart.getDatasetMeta(0);
             if (userK >= meta.data.length) return;
 
@@ -179,7 +154,6 @@ function renderLineCharts(data, userK) {
                 enabled: true,
                 callbacks: {
                     label: function(context) {
-                        // Tampilkan angka dengan pemisah ribuan (Contoh: 15.504)
                         return context.dataset.label + ": " + context.raw.toLocaleString('id-ID');
                     }
                 }
@@ -191,11 +165,9 @@ function renderLineCharts(data, userK) {
         }
     };
 
-    // Hancurkan chart lama jika ada
     if (chartKombinasiInstance) chartKombinasiInstance.destroy();
     if (chartPermutasiInstance) chartPermutasiInstance.destroy();
 
-    // Render Chart Kombinasi
     chartKombinasiInstance = new Chart(ctxKomb, {
         type: 'line',
         data: {
@@ -225,7 +197,6 @@ function renderLineCharts(data, userK) {
         plugins: [verticalLinePlugin]
     });
 
-    // Render Chart Permutasi
     chartPermutasiInstance = new Chart(ctxPerm, {
         type: 'line',
         data: {
