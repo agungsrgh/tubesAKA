@@ -1,36 +1,46 @@
 let chartKombinasiInstance = null;
 let chartPermutasiInstance = null;
 
-// Registrasi Plugin
-Chart.register(ChartDataLabels);
 Chart.defaults.font.family = "'Inter', sans-serif";
 Chart.defaults.color = '#94a3b8';
 
 function hitung() {
-    const n = document.getElementById("n").value;
-    const k = document.getElementById("k").value;
+    const nInput = document.getElementById("n");
+    const kInput = document.getElementById("k");
 
-    if (!n || !k) {
-        alert("Harap isi jumlah lagu (N) dan slot tampil (K)!");
+    if (!nInput || !kInput) {
+        alert("Elemen input tidak ditemukan!");
         return;
     }
 
+    const n = parseInt(nInput.value);
+    const k = parseInt(kInput.value);
+
+    if (isNaN(n) || isNaN(k)) {
+        alert("Harap isi nilai N dan K!");
+        return;
+    }
+
+    // Ambil Data Akurat dari Backend Go
     fetch(`/api/hitung?n=${n}&k=${k}`)
         .then(async res => {
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || "Server Error");
-            }
+            if (!res.ok) throw new Error("Server Error");
             return res.json();
         })
         .then(data => {
-            renderCharts(data);
             generateStory(data, n, k);
+            // Jalankan simulasi grafik dengan data REAL
+            const simulation = simulateFullCurve(n);
+            renderLineCharts(simulation, k);
         })
-        .catch(err => alert("⚠️ GAGAL: " + err.message));
+        .catch(err => {
+            console.error(err);
+            alert("⚠️ GAGAL: " + err.message);
+        });
 }
 
 function generateStory(data, n, k) {
+    const title = document.getElementById("story-title");
     const text = document.getElementById("story-text");
     const txtKomb = document.getElementById("txt-kombinasi");
     const txtPerm = document.getElementById("txt-permutasi");
@@ -38,71 +48,206 @@ function generateStory(data, n, k) {
 
     const valKomb = data.komb_iter.toLocaleString('id-ID');
     const valPerm = data.perm_iter.toLocaleString('id-ID');
+    const stepRec = data.step_komb_rec.toLocaleString('id-ID');
 
-    // Tampilkan Angka Matematika Kecil
-    txtKomb.innerHTML = `🧮 Kombinasi C(${n},${k}): <strong>${valKomb}</strong>`;
-    txtPerm.innerHTML = `🧮 Permutasi P(${n},${k}): <strong>${valPerm}</strong>`;
+    // Update Angka di Kotak
+    if(txtKomb) txtKomb.innerHTML = `Kombinasi C(${n},${k}): <strong>${valKomb}</strong>`;
+    if(txtPerm) txtPerm.innerHTML = `Permutasi P(${n},${k}): <strong>${valPerm}</strong>`;
 
-    // CERITA KONSER (Update: Teks Peringatan Dihapus)
-    text.innerHTML = `
-        Dari <strong>${n} lagu</strong> di album, kita harus memilih <strong>${k} lagu</strong> untuk tampil di TV.
+    if(title) title.innerText = `Laporan Manajer (N=${n}, K=${k})`;
+    if(text) text.innerHTML = `
+        Dari <strong>${n} lagu hits</strong>, kita harus memilih <strong>${k} lagu</strong>.
         <br><br>
-        <strong>Tahap 1: Seleksi Lagu (Masalah Kombinasi)</strong><br>
-        Ada <strong>${valKomb} kemungkinan paket lagu</strong> yang bisa kita pilih. Di tahap ini, kita belum memikirkan urutan, yang penting lagunya terpilih.
+        <strong>1. Tahap Seleksi (Kombinasi):</strong><br>
+        Ada <strong>${valKomb} variasi paket</strong>.
         <br><br>
-        <strong>Tahap 2: Susunan Rundown (Masalah Permutasi)</strong><br>
-        Setelah lagu terpilih, kita harus atur urutan (Opening vs Ending). Karena urutan mempengaruhi mood penonton, jumlah skenarionya melonjak jadi <strong>${valPerm} kemungkinan</strong>.
+        <strong>2. Tahap Rundown (Permutasi):</strong><br>
+        Ada <strong>${valPerm} kemungkinan urutan</strong>. Algoritma stabil (Linear).
     `;
 
-    box.style.display = "block";
+    if(box) box.style.display = "block";
 }
 
-function renderCharts(data) {
-    const ctxKomb = document.getElementById("chartKombinasi").getContext('2d');
-    const ctxPerm = document.getElementById("chartPermutasi").getContext('2d');
+// --- LOGIKA SIMULASI REAL (DENGAN CACHE) ---
+// Ini menghitung langkah PERSIS sama seperti kode Go kamu.
+// Menggunakan 'memoSteps' agar browser tidak crash saat N besar.
+
+let memoSteps = {}; // Tempat nyimpen hasil hitungan biar gak diulang
+
+function getRealRecursiveSteps(n, k) {
+    const key = `${n},${k}`;
     
-    const commonOptions = {
-        responsive: true,
-        plugins: {
-            legend: { display: false },
-            datalabels: {
-                color: '#fff', anchor: 'end', align: 'top', offset: 0,
-                font: { weight: 'bold' },
-                formatter: (val) => val.toLocaleString('id-ID')
-            }
-        },
-        scales: { y: { beginAtZero: true } }
+    // Cek apakah sudah pernah dihitung? Kalau sudah, ambil dari ingatan.
+    if (memoSteps[key] !== undefined) return memoSteps[key];
+
+    // Logika Hitung Langkah (Sama persis kayak Go)
+    // Setiap kali fungsi dipanggil = 1 langkah
+    let steps = 1; 
+
+    if (k > n) {
+        // Base case user: return 0. Tidak ada panggilan anak.
+    } else if (k === 0) {
+        // Base case user: return 1. Tidak ada panggilan anak.
+    } else {
+        // Rekursif: Panggil anak kiri + anak kanan
+        steps += getRealRecursiveSteps(n - 1, k - 1);
+        steps += getRealRecursiveSteps(n - 1, k);
+    }
+
+    // Simpan ke ingatan
+    memoSteps[key] = steps;
+    return steps;
+}
+
+function simulateFullCurve(n) {
+    let labels = [];
+    let kombIter = [];
+    let kombRec = []; // Ini yang akan diisi data REAL
+    let permIter = [];
+    let permRec = [];
+
+    // Reset ingatan setiap kali simulasi baru
+    memoSteps = {};
+
+    for (let i = 0; i <= n; i++) {
+        labels.push(i);
+        
+        // 1. Kombinasi Iteratif (Hijau)
+        // Logika: Jika K > N-K, kita balik (optimasi).
+        let k_opt = (i > n - i) ? n - i : i;
+        let stepsKI = (k_opt === 0) ? 0 : k_opt; 
+        kombIter.push(stepsKI);
+
+        // 2. Kombinasi Rekursif (Merah) - DATA PASTI
+        // Panggil fungsi hitung langkah asli
+        let realSteps = getRealRecursiveSteps(n, i);
+        kombRec.push(realSteps);
+
+        // 3. Permutasi (Biru & Kuning)
+        permIter.push(i);
+        permRec.push(i + 1);
+    }
+    return { labels, kombIter, kombRec, permIter, permRec };
+}
+
+function renderLineCharts(data, userK) {
+    const ctxKombElement = document.getElementById("chartKombinasi");
+    const ctxPermElement = document.getElementById("chartPermutasi");
+
+    if (!ctxKombElement || !ctxPermElement) return;
+
+    const ctxKomb = ctxKombElement.getContext('2d');
+    const ctxPerm = ctxPermElement.getContext('2d');
+    
+    // Plugin Garis Penanda
+    const verticalLinePlugin = {
+        id: 'verticalLine',
+        afterDraw: (chart) => {
+            if (chart.tooltip?._active?.length) return;
+            const ctx = chart.ctx;
+            
+            // Cek apakah userK ada dalam jangkauan sumbu X
+            const meta = chart.getDatasetMeta(0);
+            if (userK >= meta.data.length) return;
+
+            const x = chart.scales.x.getPixelForValue(userK);
+            const topY = chart.scales.y.top;
+            const bottomY = chart.scales.y.bottom;
+            
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x, topY);
+            ctx.lineTo(x, bottomY);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.setLineDash([5, 5]);
+            ctx.stroke();
+            ctx.restore();
+            
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText(`K=${userK}`, x, topY - 10);
+        }
     };
 
-    // Grafik Kombinasi
-    if (chartKombinasiInstance) chartKombinasiInstance.destroy();
-    chartKombinasiInstance = new Chart(ctxKomb, {
-        type: "bar",
-        data: {
-            labels: ["Iteratif (Efisien)", "Rekursif (Berat)"],
-            datasets: [{
-                data: [data.step_komb_iter, data.step_komb_rec],
-                backgroundColor: ["#4ade80", "#f87171"],
-                borderRadius: 5,
-                minBarLength: 20
-            }]
+    const commonOptions = {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: { labels: { color: '#fff' } },
+            tooltip: { 
+                enabled: true,
+                callbacks: {
+                    label: function(context) {
+                        // Tampilkan angka dengan pemisah ribuan (Contoh: 15.504)
+                        return context.dataset.label + ": " + context.raw.toLocaleString('id-ID');
+                    }
+                }
+            }
         },
-        options: commonOptions
+        scales: {
+            x: { grid: { color: '#334155' }, ticks: { color: '#cbd5e1' } },
+            y: { grid: { color: '#334155' }, ticks: { color: '#cbd5e1' }, beginAtZero: true }
+        }
+    };
+
+    // Hancurkan chart lama jika ada
+    if (chartKombinasiInstance) chartKombinasiInstance.destroy();
+    if (chartPermutasiInstance) chartPermutasiInstance.destroy();
+
+    // Render Chart Kombinasi
+    chartKombinasiInstance = new Chart(ctxKomb, {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [
+                {
+                    label: 'Rekursif (Merah)',
+                    data: data.kombRec,
+                    borderColor: '#f87171',
+                    backgroundColor: 'rgba(248, 113, 113, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: (ctx) => ctx.dataIndex === userK ? 6 : 2, 
+                    pointBackgroundColor: '#fff'
+                },
+                {
+                    label: 'Iteratif (Hijau)',
+                    data: data.kombIter,
+                    borderColor: '#4ade80',
+                    tension: 0.1,
+                    pointRadius: (ctx) => ctx.dataIndex === userK ? 6 : 0,
+                    pointBackgroundColor: '#fff'
+                }
+            ]
+        },
+        options: commonOptions,
+        plugins: [verticalLinePlugin]
     });
 
-    // Grafik Permutasi
-    if (chartPermutasiInstance) chartPermutasiInstance.destroy();
+    // Render Chart Permutasi
     chartPermutasiInstance = new Chart(ctxPerm, {
-        type: "bar",
+        type: 'line',
         data: {
-            labels: ["Iteratif", "Rekursif"],
-            datasets: [{
-                data: [data.step_perm_iter, data.step_perm_rec],
-                backgroundColor: ["#38bdf8", "#fbbf24"],
-                borderRadius: 5,
-                minBarLength: 20
-            }]
+            labels: data.labels,
+            datasets: [
+                {
+                    label: 'Rekursif',
+                    data: data.permRec,
+                    borderColor: '#fbbf24',
+                    borderDash: [5, 5],
+                    pointRadius: 0
+                },
+                {
+                    label: 'Iteratif',
+                    data: data.permIter,
+                    borderColor: '#38bdf8',
+                    pointRadius: (ctx) => ctx.dataIndex === userK ? 6 : 0,
+                    pointBackgroundColor: '#fff'
+                }
+            ]
         },
-        options: commonOptions
+        options: commonOptions,
+        plugins: [verticalLinePlugin]
     });
 }

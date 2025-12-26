@@ -6,34 +6,31 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
 <body>
 
 <div class="container">
   <h1>Manajer Konser Simulator</h1>
-  <p class="subtitle">Studi Kasus: Analisis Efisiensi Penyusunan Setlist Lagu</p>
+  <p class="subtitle">Analisis Kompleksitas: Iteratif vs Rekursif</p>
 
   <div class="input-box">
     <div class="field">
         <label>Total Koleksi Lagu (N)</label>
-        <input type="number" id="n" placeholder="Contoh: 20" min="0" max="20" value="20">
+        <input type="number" id="n" placeholder="Contoh: 15" min="0" max="20" value="15">
     </div>
     <div class="field">
-        <label>Slot Tampil di TV (K)</label>
-        <input type="number" id="k" placeholder="Contoh: 3" min="0" max="20" value="3">
+        <label>Slot Tampil (K)</label>
+        <input type="number" id="k" placeholder="Contoh: 7" min="0" max="20" value="7">
     </div>
     <button onclick="hitung()">Analisis Skenario</button>
   </div>
 
   <div id="result-container" class="result-box" style="display: none;">
-    <h3 style="margin-top:0; color:#38bdf8;">Laporan Manajer:</h3>
-    <p id="story-text" style="line-height: 1.6;"></p>
+    <h3 id="story-title" style="margin-top:0; color:#38bdf8;">📋 Laporan Manajer</h3>
+    <p id="story-text" style="line-height: 1.6; color: #e2e8f0;"></p>
     
-    <hr style="border-color: #334155; margin: 15px 0;">
-    
-    <div style="font-size: 0.9em; color: #94a3b8;">
-        <strong>Data Matematis:</strong><br>
+    <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #334155; font-size: 0.9em; color: #94a3b8;">
+        <strong>Data Teknis:</strong><br>
         <span id="txt-kombinasi"></span><br>
         <span id="txt-permutasi"></span>
     </div>
@@ -41,24 +38,29 @@
 
   <div class="charts-grid">
     <div class="chart-container">
-        <h3>1. Seleksi Lagu (Kombinasi)</h3>
-        <p style="font-size: 0.8rem; color: #94a3b8;">Hanya memilih, urutan bebas</p>
+        <h3>1. Kurva Seleksi (Kombinasi)</h3>
+        <p style="font-size: 0.8rem; color: #94a3b8;">Garis Merah = Beban Rekursif</p>
         <canvas id="chartKombinasi"></canvas>
     </div>
     <div class="chart-container">
-        <h3>2. Susunan Rundown (Permutasi)</h3>
-        <p style="font-size: 0.8rem; color: #94a3b8;">Urutan Opening & Ending penting</p>
+        <h3>2. Kurva Rundown (Permutasi)</h3>
+        <p style="font-size: 0.8rem; color: #94a3b8;">Garis Berhimpitan = Stabil</p>
         <canvas id="chartPermutasi"></canvas>
     </div>
   </div>
 
-  <div class="conclusion-box">
-    <h2>Kesimpulan Analis</h2>
-    <p>
-      Berdasarkan pengujian sistem, algoritma Rekursif (tanpa optimasi) pada tahap Kombinasi mengalami ledakan komputasi hingga jutaan langkah. Sedangkan Iteratif menyelesaikannya hanya dalam hitungan jari.
+  <div class="conclusion-box" style="margin-top: 30px; background: #1e293b; padding: 20px; border-radius: 12px; border-left: 4px solid #4ade80;">
+    <h2 style="margin-top: 0; font-size: 1.2rem; color: #4ade80;">Kesimpulan Analisis</h2>
+    <p style="line-height: 1.6; color: #cbd5e1;">
+      <strong>1. Masalah Kombinasi (Seleksi):</strong><br>
+      Algoritma <em>Rekursif Murni</em> mengalami ledakan eksponensial (Grafik Merah melengkung tinggi).
+      Sebaliknya, <em>Iteratif</em> (Grafik Hijau) sangat efisien (Datar).
+    </p>
+    <p style="line-height: 1.6; color: #cbd5e1; margin-top: 10px;">
+      <strong>2. Masalah Permutasi (Urutan):</strong><br>
+      Baik Rekursif maupun Iteratif sama-sama efisien (Linear/Garis Lurus).
     </p>
   </div>
-
 </div>
 
 <script src="script.js"></script>
